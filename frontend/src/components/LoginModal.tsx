@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -7,6 +7,35 @@ interface LoginModalProps {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSignup }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.ok) {
+        alert('Login successful!');
+        onClose();
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Login failed');
+      }
+    } catch (error) {
+      setError('An error occurred during login');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -21,17 +50,22 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
         </button>
 
         <h2 className="text-xl font-semibold mb-4 text-center">Login</h2>
-        <form className="flex flex-col space-y-4">
+        <form onSubmit={handleLogin} className="flex flex-col space-y-4">
           <input
             type="text"
             placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
             className="bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
