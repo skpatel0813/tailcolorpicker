@@ -1,4 +1,3 @@
-// pages/api/login.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '../../utils/db';
 import bcrypt from 'bcrypt';
@@ -49,13 +48,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         createdAt: new Date(),
       });
 
-      // Set the session cookie
-      res.setHeader('Set-Cookie', serialize('sessionId', sessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-        path: '/',
-      }));
+      // Set the session cookie and username cookie
+      res.setHeader('Set-Cookie', [
+        serialize('sessionId', sessionId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Lax',
+          path: '/',
+          maxAge: 60 * 60 * 24 * 365, // 1 year cookie expiry
+        }),
+        serialize('username', username, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Lax',
+          path: '/',
+          maxAge: 60 * 60 * 24 * 365, // 1 year cookie expiry
+        }),
+      ]);
 
       return res.status(200).json({ message: 'Login successful.' });
     } catch (error) {
