@@ -1,7 +1,8 @@
-// frontend/components/ImageColorPalette.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import ColorThief from 'colorthief';
 import UploadImageForm from './UploadImageForm';
+import SavedPalettesModal from './SavedPalettesModal';
+import EditPaletteModal from './EditPaletteModal';
 
 interface ColorPaletteProps {
   imageUrl: string;
@@ -20,8 +21,11 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
   const [hoverColor, setHoverColor] = useState<number[] | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   const [currentImage, setCurrentImage] = useState<string>(imageUrl);
-  const [savedPalettes, setSavedPalettes] = useState<string[][]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [savedPalettes, setSavedPalettes] = useState<{ palette: string[]; createdAt: string }[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSavedPalettesModalOpen, setIsSavedPalettesModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPaletteIndex, setSelectedPaletteIndex] = useState<number | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
 
@@ -51,10 +55,17 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
       if (!username) return;
 
       try {
-        const response = await fetch(`http://localhost:3001/api/getSavedPalettes?username=${username}`);
+        const response = await fetch(
+          `http://localhost:3001/api/getSavedPalettes?username=${username}`
+        );
         if (response.ok) {
           const data = await response.json();
-          setSavedPalettes(data.data.map((palette: any) => palette.colors || []));
+          setSavedPalettes(
+            data.data.map((palette: any) => ({
+              palette: palette.colors || [],
+              createdAt: palette.createdAt,
+            }))
+          );
         } else {
           console.error('Failed to fetch saved palettes');
         }
@@ -67,7 +78,7 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
   }, [username]);
 
   const rgbToHex = (rgb: number[]) => {
-    return `#${rgb.map(x => x.toString(16).padStart(2, '0')).join('')}`;
+    return `#${rgb.map((x) => x.toString(16).padStart(2, '0')).join('')}`;
   };
 
   const handleMouseMove = (event: React.MouseEvent) => {
@@ -95,7 +106,7 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
   };
 
   const handleSavePalette = async () => {
-    const hexPalette = palette.map(color => rgbToHex(color));
+    const hexPalette = palette.map((color) => rgbToHex(color));
 
     if (!username) {
       alert('Username is required to save the palette.');
@@ -103,7 +114,6 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
     }
 
     try {
-      // Use the correct URL for the backend
       const res = await fetch('http://localhost:3000/api/savePalette', {
         method: 'POST',
         headers: {
@@ -116,7 +126,10 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
         try {
           const data = await res.json();
           alert('Palette saved successfully!');
-          setSavedPalettes([...savedPalettes, hexPalette]);
+          setSavedPalettes([
+            ...savedPalettes,
+            { palette: hexPalette, createdAt: new Date().toISOString() },
+          ]);
         } catch (jsonError) {
           console.error('Error parsing JSON:', jsonError);
           alert('Palette saved successfully, but there was an issue with the response format.');
@@ -130,6 +143,46 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
     }
   };
 
+  const handleEditPalette = (index: number) => {
+    setSelectedPaletteIndex(index);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdatePalette = (updatedPalette: string[]) => {
+    if (selectedPaletteIndex !== null) {
+      const updatedPalettes = [...savedPalettes];
+      updatedPalettes[selectedPaletteIndex].palette = updatedPalette;
+      setSavedPalettes(updatedPalettes);
+    }
+    setIsEditModalOpen(false);
+  };
+
+  const handleDeletePalette = (index: number) => {
+    const confirmed = window.confirm("Are you sure you want to delete this palette?");
+    if (confirmed) {
+      const updatedPalettes = [...savedPalettes];
+      updatedPalettes.splice(index, 1);
+      setSavedPalettes(updatedPalettes);
+
+      fetch(`http://localhost:3000/api/deletePalette`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, index }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            alert("Palette deleted successfully!");
+          } else {
+            alert("Failed to delete palette.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error deleting palette:", error);
+          alert("An error occurred while deleting the palette.");
+        });
+    }
+  };
+
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -138,9 +191,23 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
     setIsModalOpen(false);
   };
 
-  const handleImageSubmit = (imageData: string) => {
-    setCurrentImage(imageData); // Update the current image
+  const openSavedPalettesModal = () => {
+    setIsSavedPalettesModalOpen(true);
   };
+
+  const closeSavedPalettesModal = () => {
+    setIsSavedPalettesModalOpen(false);
+  };
+
+  const handleImageSubmit = (imageData: string) => {
+    setCurrentImage(imageData);
+  };
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setCurrentImage(imageUrl);
+    }
+  }, [isLoggedIn, imageUrl]);
 
   return (
     <div className="flex flex-col items-center relative">
@@ -169,7 +236,7 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
           style={{
             top: tooltipPosition.y + 10,
             left: tooltipPosition.x + 10,
-            backgroundColor: `rgb(${hoverColor[0]}, ${hoverColor[1]}, ${hoverColor[2]})`
+            backgroundColor: `rgb(${hoverColor[0]}, ${hoverColor[1]}, ${hoverColor[2]})`,
           }}
           className="absolute p-2 rounded text-white shadow-md text-xs"
         >
@@ -183,34 +250,61 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
         >
           Save Palette
         </button>
-        <button
-          onClick={openModal}
-          className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 transition-colors"
-        >
-          Upload New Image
-        </button>
+        {isLoggedIn && (
+          <button
+            onClick={openModal}
+            className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 transition-colors"
+          >
+            Upload New Image
+          </button>
+        )}
       </div>
       {isModalOpen && (
         <UploadImageForm onClose={closeModal} onSubmitImage={handleImageSubmit} />
       )}
-      <div className="mt-8 w-full">
-        <h2 className="text-lg font-semibold mb-4">Saved Palettes</h2>
-        <div className="grid grid-cols-2 gap-4">
-          {savedPalettes.map((savedPalette, index) => (
-            <div key={index} className="flex flex-col items-center text-center">
-              <div className="flex space-x-2">
-                {savedPalette.map((color, colorIndex) => (
-                  <div
-                    key={colorIndex}
-                    style={{ backgroundColor: color }}
-                    className="w-8 h-8 rounded-full shadow-md"
-                  ></div>
-                ))}
+      {isLoggedIn && (
+        <div className="mt-8 w-full">
+          <h2 className="text-lg font-semibold mb-4">Recently Saved Palettes</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {savedPalettes.map((savedPalette, index) => (
+              <div key={index} className="flex flex-col items-center text-center">
+                <div className="flex space-x-2">
+                  {savedPalette.palette.map((color, colorIndex) => (
+                    <div key={colorIndex} className="flex flex-col items-center">
+                      <div
+                        style={{ backgroundColor: color }}
+                        className="w-8 h-8 rounded-full shadow-md"
+                      ></div>
+                      <p className="text-xs mt-1">{color}</p>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => handleEditPalette(index)}
+                  className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded-md shadow-md hover:bg-yellow-600 transition-colors"
+                >
+                  Edit
+                </button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+      <SavedPalettesModal
+        isOpen={isSavedPalettesModalOpen}
+        onClose={closeSavedPalettesModal}
+        palettes={savedPalettes}
+        onEdit={handleEditPalette} // Added the missing onEdit prop
+        onDelete={handleDeletePalette}
+      />
+      {isEditModalOpen && selectedPaletteIndex !== null && (
+        <EditPaletteModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          palette={savedPalettes[selectedPaletteIndex].palette}
+          onSave={handleUpdatePalette}
+        />
+      )}
     </div>
   );
 };

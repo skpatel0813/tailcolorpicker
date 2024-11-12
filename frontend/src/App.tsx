@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ImageColorPalette from './components/ImageColorPalette';
 import LoginModal from './components/LoginModal';
@@ -10,8 +11,8 @@ const App: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isSavedPalettesModalOpen, setIsSavedPalettesModalOpen] = useState(false);
-  const [savedPalettes, setSavedPalettes] = useState<any[]>([]);
-  const [username, setUsername] = useState<string>(''); // Added state for storing the username
+  const [savedPalettes, setSavedPalettes] = useState<{ palette: string[]; createdAt: string }[]>([]);
+  const [username, setUsername] = useState<string>('');
 
   const defaultImageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0V9Cevo3BSOtjYT5-baCTTd2hJvyxCiRbFw&s';
 
@@ -21,91 +22,112 @@ const App: React.FC = () => {
 
   const handleSuccessfulLogin = (loggedInUsername: string) => {
     setIsLoggedIn(true);
-    setUsername(loggedInUsername); // Set the username after login
+    setUsername(loggedInUsername);
     setIsLoginModalOpen(false);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setUsername(''); // Clear username on logout
+    setUsername('');
   };
 
-  // Fetch saved palettes based on the logged-in username
   const handleViewSavedPalettes = async () => {
     if (!username) {
-      alert("Please log in first.");
+      alert('Please log in first.');
       return;
     }
 
     try {
-      console.log('Sending request to fetch saved palettes for username:', username);
       const res = await fetch(`http://localhost:3000/api/getSavedPalettes?username=${encodeURIComponent(username)}`, {
         method: 'GET',
-        credentials: 'same-origin', // Fetch without sending cookies or authentication info
+        credentials: 'same-origin',
       });
 
       if (res.ok) {
         const data = await res.json();
-        console.log('Received palettes:', data);
         setSavedPalettes(data.data);
         setIsSavedPalettesModalOpen(true);
       } else {
         const errorData = await res.json();
-        console.error(`Failed to fetch saved palettes: ${errorData.error}`);
         alert(`Failed to fetch saved palettes: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error fetching saved palettes:', error);
       alert('An error occurred while fetching saved palettes');
     }
   };
 
-  // Function to switch from login to signup modal
   const handleSwitchToSignup = () => {
     setIsLoginModalOpen(false);
     setIsSignupModalOpen(true);
   };
 
-  // Function to switch from signup to login modal
   const handleSwitchToLogin = () => {
     setIsSignupModalOpen(false);
     setIsLoginModalOpen(true);
   };
 
+  // New Logout Component
+  const Logout: React.FC = () => {
+    handleLogout();
+    return <Navigate to="/" />;
+  };
+
   return (
-    <div className="App min-h-screen bg-gray-100">
-      <Navbar
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-        onLoginClick={onLoginRequest}
-        onViewSavedPalettes={handleViewSavedPalettes} // Pass function to view saved palettes
-      />
-      <div className="flex items-center justify-center min-h-screen">
-        <ImageColorPalette
-          imageUrl={defaultImageUrl}
+    <Router>
+      <div className="App min-h-screen bg-gray-100">
+        <Navbar
           isLoggedIn={isLoggedIn}
-          username={username} // Pass the username prop to ImageColorPalette
-          onLoginRequest={onLoginRequest}
+          onLogout={handleLogout}
+          onLoginClick={onLoginRequest}
+          onViewSavedPalettes={handleViewSavedPalettes}
+        />
+
+        <div className="flex items-center justify-center ">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ImageColorPalette
+                  imageUrl={defaultImageUrl}
+                  isLoggedIn={isLoggedIn}
+                  username={username}
+                  onLoginRequest={onLoginRequest}
+                />
+              }
+            />
+            <Route path="/logout" element={<Logout />} />
+          </Routes>
+        </div>
+
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          onSwitchToSignup={handleSwitchToSignup}
+          onSuccessfulLogin={handleSuccessfulLogin}
+        />
+        <SignupModal
+          isOpen={isSignupModalOpen}
+          onClose={() => setIsSignupModalOpen(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+        <SavedPalettesModal
+          isOpen={isSavedPalettesModalOpen}
+          onClose={() => setIsSavedPalettesModalOpen(false)}
+          palettes={savedPalettes}
+          onEdit={(index) => {
+            alert(`Edit palette at index ${index}`);
+          }}
+          onDelete={(index) => {
+            const confirmed = window.confirm('Are you sure you want to delete this palette?');
+            if (confirmed) {
+              const updatedPalettes = [...savedPalettes];
+              updatedPalettes.splice(index, 1);
+              setSavedPalettes(updatedPalettes);
+            }
+          }}
         />
       </div>
-
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSwitchToSignup={handleSwitchToSignup}
-        onSuccessfulLogin={handleSuccessfulLogin} // Pass the function to set username after login
-      />
-      <SignupModal
-        isOpen={isSignupModalOpen}
-        onClose={() => setIsSignupModalOpen(false)}
-        onSwitchToLogin={handleSwitchToLogin} // Pass function to switch to login modal
-      />
-      <SavedPalettesModal
-        isOpen={isSavedPalettesModalOpen}
-        onClose={() => setIsSavedPalettesModalOpen(false)}
-        palettes={savedPalettes}
-      />
-    </div>
+    </Router>
   );
 };
 
