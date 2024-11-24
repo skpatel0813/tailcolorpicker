@@ -5,7 +5,7 @@ import ImageColorPalette from './components/ImageColorPalette';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal';
 import SavedPalettesModal from './components/SavedPalettesModal';
-import ColorWheel from './components/ColorWheel';
+import ColorPicker from './components/ColorPicker';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -84,7 +84,7 @@ const App: React.FC = () => {
         />
 
         <div>
-          <ColorWheel />
+          <ColorPicker />
         </div>
 
         <div className="flex items-center justify-center ">
