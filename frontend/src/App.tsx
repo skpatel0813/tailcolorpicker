@@ -5,6 +5,7 @@ import ImageColorPalette from './components/ImageColorPalette';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal';
 import SavedPalettesModal from './components/SavedPalettesModal';
+import ColorPicker from './components/ColorPicker';
 import EditPaletteModal from "./components/EditPaletteModal";
 
 
@@ -161,7 +162,9 @@ const App: React.FC = () => {
           onViewSavedPalettes={handleViewSavedPalettes}
         />
 
-        <div className="flex items-center justify-center ">
+        
+
+        <div className="flex items-center justify-center min-h-screen ">
           <Routes>
             <Route
               path="/"
