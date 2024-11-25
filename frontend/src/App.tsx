@@ -5,7 +5,6 @@ import ImageColorPalette from './components/ImageColorPalette';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal';
 import SavedPalettesModal from './components/SavedPalettesModal';
-import ColorPicker from './components/ColorPicker';
 import EditPaletteModal from "./components/EditPaletteModal";
 
 
