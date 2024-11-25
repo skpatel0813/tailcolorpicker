@@ -161,10 +161,6 @@ const App: React.FC = () => {
           onViewSavedPalettes={handleViewSavedPalettes}
         />
 
-        <div>
-          <ColorPicker />
-        </div>
-
         <div className="flex items-center justify-center ">
           <Routes>
             <Route
