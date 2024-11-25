@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -6,33 +6,37 @@ interface SignupModalProps {
   onSwitchToLogin: () => void;
 }
 
-const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLogin }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const SignupModal: React.FC<SignupModalProps> = ({
+  isOpen,
+  onClose,
+  onSwitchToLogin,
+}) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError('');
+    setError("");
 
     try {
-      const res = await fetch('http://localhost:3000/api/signup', {
-        method: 'POST',
+      const res = await fetch("http://localhost:3000/api/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
 
       if (res.ok) {
-        alert('Signup successful!');
+        alert("Signup successful!");
         onClose();
       } else {
         const data = await res.json();
-        setError(data.error || 'Signup failed');
+        setError(data.error || "Signup failed");
       }
     } catch (error) {
-      setError('An error occurred during signup');
+      setError("An error occurred during signup");
     }
   };
 
@@ -76,8 +80,12 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
 
         {/* "Already Have An Account?" Link */}
         <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <a href="#" className="text-blue-500 hover:underline" onClick={onSwitchToLogin}>
+          Already have an account?{" "}
+          <a
+            href="#"
+            className="text-blue-500 hover:underline"
+            onClick={onSwitchToLogin}
+          >
             Log in here
           </a>
         </p>
