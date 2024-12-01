@@ -1,31 +1,31 @@
-// frontend/components/UploadImageForm.tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface UploadImageFormProps {
   onClose: () => void;
   onSubmitImage: (imageData: string) => void;
 }
 
-const UploadImageForm: React.FC<UploadImageFormProps> = ({ onClose, onSubmitImage }) => {
+const UploadImageForm: React.FC<UploadImageFormProps> = ({
+  onClose,
+  onSubmitImage,
+}) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageName, setImageName] = useState('');
+  const [imageName, setImageName] = useState("");
 
-  // Handle file input change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setImageFile(file);
-    setImageName(file ? file.name : '');
+    setImageName(file ? file.name : "");
   };
 
-  // Handle form submission
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
     if (imageFile) {
       const reader = new FileReader();
       reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          onSubmitImage(reader.result); // Pass the image data to the parent component
-          onClose(); // Close the modal
+        if (typeof reader.result === "string") {
+          onSubmitImage(reader.result);
+          onClose();
         }
       };
       reader.readAsDataURL(imageFile);

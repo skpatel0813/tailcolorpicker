@@ -1,19 +1,17 @@
-// pages/api/deletePalette.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "../../utils/db";
 import { ObjectId } from "mongodb";
+import { paletteCollection, paletteDb } from "../../const";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Set CORS headers
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
   res.setHeader("Access-Control-Allow-Methods", "DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
@@ -38,10 +36,9 @@ export default async function handler(
 
   try {
     const client = await clientPromise;
-    const db = client.db("your-database-name"); // Replace with your actual database name
-    const palettesCollection = db.collection("palettes");
+    const db = client.db(paletteDb);
+    const palettesCollection = db.collection(paletteCollection);
 
-    // Ensure the user can only delete their own palettes
     const result = await palettesCollection.deleteOne({
       _id: new ObjectId(paletteId as string),
       username: username,

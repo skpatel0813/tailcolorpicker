@@ -1,40 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignup: () => void;
-  onSuccessfulLogin: (username: string) => void;  // Accepts username as a parameter
+  onSuccessfulLogin: (username: string) => void;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSignup, onSuccessfulLogin }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const LoginModal: React.FC<LoginModalProps> = ({
+  isOpen,
+  onClose,
+  onSwitchToSignup,
+  onSuccessfulLogin,
+}) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError('');
+    setError("");
 
     try {
-      const res = await fetch('http://localhost:3000/api/login', {
-        method: 'POST',
+      const res = await fetch("http://localhost:3000/api/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
 
       if (res.ok) {
-        alert('Login successful!');
-        onSuccessfulLogin(username);  // Pass the username back to the parent component
+        alert("Login successful!");
+        onSuccessfulLogin(username);
         onClose();
       } else {
         const data = await res.json();
-        setError(data.error || 'Login failed');
+        setError(data.error || "Login failed");
       }
     } catch (error) {
-      setError('An error occurred during login');
+      setError("An error occurred during login");
     }
   };
 
@@ -76,10 +81,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
           </button>
         </form>
 
-        {/* "Don't Have An Account?" Link */}
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don’t Have An Account?{' '}
-          <a href="#" className="text-blue-500 hover:underline" onClick={onSwitchToSignup}>
+          Don’t Have An Account?{" "}
+          <a
+            href="#"
+            className="text-blue-500 hover:underline"
+            onClick={onSwitchToSignup}
+          >
             Click Here
           </a>
         </p>

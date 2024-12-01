@@ -2,6 +2,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "../../utils/db";
 import { ObjectId } from "mongodb";
+import { paletteCollection, paletteDb } from "../../const";
 
 export default async function handler(
   req: NextApiRequest,
@@ -31,8 +32,8 @@ export default async function handler(
 
   try {
     const client = await clientPromise;
-    const db = client.db("your-database-name");
-    const palettesCollection = db.collection("palettes");
+    const db = client.db(paletteDb);
+    const palettesCollection = db.collection(paletteCollection);
 
     const result = await palettesCollection.findOneAndUpdate(
       {
@@ -47,8 +48,6 @@ export default async function handler(
       },
       { returnDocument: "after" }
     );
-
-    console.log(result);
 
     res.status(200).json({ success: true, data: result });
   } catch (error) {

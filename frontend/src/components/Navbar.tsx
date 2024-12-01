@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface NavbarProps {
   isLoggedIn: boolean;
@@ -15,15 +15,12 @@ const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <nav className="w-full bg-gray-800 text-white py-4 shadow-md flex items-center px-8">
-      {/* Empty div to balance the space on the left */}
       <div className="flex-1"></div>
 
-      {/* Center Title */}
       <div className="text-2xl font-semibold flex-1 text-center">
         Tail ColorPicker
       </div>
 
-      {/* Right Buttons */}
       <div className="flex items-center space-x-4 flex-1 justify-end">
         {!isLoggedIn ? (
           <button

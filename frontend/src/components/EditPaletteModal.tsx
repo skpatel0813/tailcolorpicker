@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface EditPaletteModalProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ const EditPaletteModal: React.FC<EditPaletteModalProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null; // Return null instead of false when the modal is not open
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

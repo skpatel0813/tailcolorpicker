@@ -343,12 +343,6 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
                     </div>
                   ))}
                 </div>
-                {/* <button
-                  onClick={() => handleEditPalette(index)}
-                  className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded-md shadow-md hover:bg-yellow-600 transition-colors"
-                >
-                  Edit
-                </button> */}
               </div>
             ))}
           </div>
@@ -358,17 +352,9 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
         isOpen={isSavedPalettesModalOpen}
         onClose={closeSavedPalettesModal}
         palettes={savedPalettes}
-        onEdit={handleEditPalette} // Added the missing onEdit prop
+        onEdit={handleEditPalette}
         onDelete={handleDeletePalette}
       />
-      {/* {isEditModalOpen && selectedPaletteIndex !== null && (
-        <EditPaletteModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          palette={savedPalettes[selectedPaletteIndex].palette}
-          onSave={handleUpdatePalette}
-        />
-      )} */}
     </div>
   );
 };

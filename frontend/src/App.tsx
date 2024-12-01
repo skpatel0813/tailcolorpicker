@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import ImageColorPalette from './components/ImageColorPalette';
-import LoginModal from './components/LoginModal';
-import SignupModal from './components/SignupModal';
-import SavedPalettesModal from './components/SavedPalettesModal';
-import ColorPicker from './components/ColorPicker';
+import React, { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import Navbar from "./components/Navbar";
+import ImageColorPalette from "./components/ImageColorPalette";
+import LoginModal from "./components/LoginModal";
+import SignupModal from "./components/SignupModal";
+import SavedPalettesModal from "./components/SavedPalettesModal";
 import EditPaletteModal from "./components/EditPaletteModal";
-
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -161,8 +164,6 @@ const App: React.FC = () => {
           onLoginClick={onLoginRequest}
           onViewSavedPalettes={handleViewSavedPalettes}
         />
-
-        
 
         <div className="flex items-center justify-center min-h-screen ">
           <Routes>
