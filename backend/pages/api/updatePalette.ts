@@ -30,10 +30,12 @@ export default async function handler(
     return res.status(400).json({ error: "Missing required data" });
   }
 
+  //Handling Promise for UPDATE
   try {
     const client = await clientPromise;
     const db = client.db(paletteDb);
     const palettesCollection = db.collection(paletteCollection);
+
 
     const result = await palettesCollection.findOneAndUpdate(
       {

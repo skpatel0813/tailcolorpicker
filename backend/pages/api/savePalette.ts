@@ -32,11 +32,13 @@ export default async function handler(
       .json({ error: "Username is required to save the palette" });
   }
 
+  //Handling Promise For Create
   try {
     const client = await clientPromise;
     const db = client.db(paletteDb);
     const palettesCollection = db.collection(paletteCollection);
 
+  
     await palettesCollection.insertOne({
       palette,
       username,

@@ -64,7 +64,9 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
 
       try {
         const response = await fetch(
-          `http://localhost:3001/api/getSavedPalettes?username=${username}`
+
+          //Read api endpoint 
+          `http://localhost:3000/api/getSavedPalettes?username=${username}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -118,11 +120,12 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
     const hexPalette = palette.map((color) => rgbToHex(color));
 
     if (!username) {
-      alert("Username is required to save the palette.");
+      alert("You must be logged in to save the palette.");
       return;
     }
 
     try {
+      //Create API endpoint
       const res = await fetch("http://localhost:3000/api/savePalette", {
         method: "POST",
         headers: {
@@ -168,6 +171,8 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
       try {
         const paletteToUpdate = savedPalettes[selectedPaletteIndex];
         const response = await fetch(
+
+          //Update API endpoint
           `http://localhost:3000/api/updatePalette?paletteId=${paletteToUpdate._id}`,
           {
             method: "PUT",
@@ -207,6 +212,8 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
       try {
         const paletteToDelete = savedPalettes[index];
         const response = await fetch(
+
+          //Delete API endpoint
           `http://localhost:3000/api/deletePalette?paletteId=${
             paletteToDelete._id
           }&username=${encodeURIComponent(username)}`,
@@ -250,6 +257,7 @@ const ImageColorPalette: React.FC<ColorPaletteProps> = ({
     setIsSavedPalettesModalOpen(false);
   };
 
+  //Submit handler for the form
   const handleImageSubmit = (imageData: string) => {
     setCurrentImage(imageData);
   };

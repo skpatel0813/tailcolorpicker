@@ -26,11 +26,14 @@ export default async function handler(
     return res.status(400).json({ error: "Username is required." });
   }
 
+  //Handling Promise for Read
   try {
     const client = await clientPromise;
     const db = client.db(paletteDb);
 
     const palettesCollection = db.collection(paletteCollection);
+
+    
     const palettes = await palettesCollection.find({ username }).toArray();
 
     return res.status(200).json({ success: true, data: palettes });

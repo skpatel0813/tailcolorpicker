@@ -39,6 +39,7 @@ export default async function handler(
     const db = client.db(paletteDb);
     const palettesCollection = db.collection(paletteCollection);
 
+    //Handling Promise for Delete
     const result = await palettesCollection.deleteOne({
       _id: new ObjectId(paletteId as string),
       username: username,
